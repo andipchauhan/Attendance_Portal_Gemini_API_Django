@@ -1,0 +1,111 @@
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Container Styles */
+.matte-bg, .dashboard-container, .login-container, .register-container {
+  background: linear-gradient(120deg, #f1f5ff 0%, #e0e7ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(102,126,234,0.10);
+  padding: 2.5em 3em;
+  max-width: 900px;
+  margin: 3em auto;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  background: #f8fafc;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5em 0.7em;
+  text-align: left;
+}
+th {
+  background: #e0e7ff;
+}
+tr:nth-child(even) {
+  background: #f1f5ff;
+}
+
+/* Button Styles */
+button {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 6px;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 500;
+  margin: 0.2em;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+  white-space: nowrap;
+}
+button:hover {
+  background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Admin Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 2em;
+}
+.admin-tabs button {
+  background: #e0e7ff;
+  color: #1e293b;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 5px 5px 0 0;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.admin-tabs button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Form Elements */
+form > div {
+  margin-bottom: 1.2em;
+}
+label {
+  display: block;
+  margin-bottom: 0.3em;
+  font-weight: 500;
+}
+input, select {
+  width: 100%;
+  padding: 0.5em;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 1em;
+  background: #f9fafb;
+}
+
+/* Alerts */
+.error {
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  margin-bottom: 1em;
+}
+.success {
+  color: #166534;
+  background: #bbf7d0;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  margin-bottom: 1em;
+}
