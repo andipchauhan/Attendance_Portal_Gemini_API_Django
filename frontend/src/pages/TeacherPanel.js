@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { renderMarkdown } from '../utils/markdown';
 import axios from '../utils/axios';
 import { useAuth } from '../utils/AuthContext';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// Removed unused recharts imports
 
 // Profile update modal
 function ProfileModal({ user, onClose, onUpdate }) {
@@ -52,8 +52,6 @@ function TeacherPanel() {
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState({});
   const [message, setMessage] = useState('');
-  const [trends, setTrends] = useState([]);
-  const [trendError, setTrendError] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentHistory, setStudentHistory] = useState([]);
   const [studentPercent, setStudentPercent] = useState({});
@@ -86,9 +84,7 @@ function TeacherPanel() {
           });
         })
         .catch(() => setStudents([]));
-      axios.get(`/attendance/trends/?class=${user.class_assigned}`)
-        .then(res => setTrends(res.data.trends || []))
-        .catch(() => setTrendError('Could not load attendance trends.'));
+  // Removed unused trends fetching
       // Check if attendance is already marked for today
       axios.get('/attendance/marked_today/')
         .then(res => setAttendanceMarked(res.data.marked))
