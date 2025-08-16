@@ -1,7 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axios';
+import { useAuth } from '../utils/AuthContext';
+
+// Profile update modal
+function ProfileModal({ user, onClose, onUpdate }) {
+  const [username, setUsername] = useState(user?.username || '');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  return (
+    <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(30,41,59,0.85)',zIndex:2000,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:14,padding:'2em 2.5em',minWidth:340,boxShadow:'0 4px 32px #0003',position:'relative'}}>
+        <button onClick={onClose} style={{position:'absolute',top:16,right:16,background:'#ef4444',color:'#fff',border:'none',borderRadius:6,padding:'0.4em 1em',fontWeight:'bold',fontSize:'1em'}}>Close</button>
+        <h2 style={{textAlign:'center',color:'#2563eb',marginBottom:'1em'}}>Update Profile</h2>
+        <form onSubmit={async e => {
+          e.preventDefault();
+          setLoading(true);
+          setMessage('');
+          try {
+            await axios.post('/profile/update/', { username, password });
+            setMessage('Profile updated!');
+            onUpdate && onUpdate(username);
+          } catch (err) {
+            setMessage(err?.response?.data?.error || 'Error updating profile');
+          }
+          setLoading(false);
+        }}>
+          <div style={{marginBottom:'1em'}}>
+            <label>Username</label>
+            <input value={username} onChange={e=>setUsername(e.target.value)} style={{width:'100%',padding:'0.6em',borderRadius:6,border:'1px solid #cbd5e1'}} />
+          </div>
+          <div style={{marginBottom:'1em'}}>
+            <label>New Password</label>
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} style={{width:'100%',padding:'0.6em',borderRadius:6,border:'1px solid #cbd5e1'}} />
+          </div>
+          {message && <div style={{marginBottom:'1em',color:message.includes('updated')?'#16a34a':'#dc2626',textAlign:'center'}}>{message}</div>}
+          <button type="submit" style={{width:'100%',padding:'0.7em',borderRadius:6,background:'#2563eb',color:'#fff',fontWeight:'bold',fontSize:'1.1em',border:'none',marginTop:'0.5em',cursor:loading?'not-allowed':'pointer'}} disabled={loading}>Update</button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function AdminPanel() {
+  const { user, setUser } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
   const [pendingTeachers, setPendingTeachers] = useState([]);
   const [pendingStudents, setPendingStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -82,6 +125,11 @@ function AdminPanel() {
 
   return (
     <div className="admin-panel matte-bg">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5em'}}>
+        <h1 style={{textAlign:'center',color:'#2563eb',fontWeight:'bold',fontSize:'2em',letterSpacing:'-1px',margin:0}}>Admin Dashboard</h1>
+        <button onClick={()=>setShowProfile(true)} style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:6,padding:'0.5em 1.2em',fontWeight:'bold',fontSize:'1em'}}>Edit Profile</button>
+      </div>
+      {showProfile && <ProfileModal user={user} onClose={()=>setShowProfile(false)} onUpdate={uname=>{if(uname)setUser(u=>({...u,username:uname}));}} />}
       <div className="admin-tabs">
         <button className={tab==='pending' ? 'active' : ''} onClick={()=>setTab('pending')}>Pending Requests</button>
         <button className={tab==='teachers' ? 'active' : ''} onClick={()=>setTab('teachers')}>Teachers</button>
