@@ -1,48 +1,12 @@
 # Python/Django
 __pycache__/
-*.py[cod]
-*.so
-.Python
 venv/
-env/
-.venv/
-.env
-*.log
-migrations/__pycache__/
 
 # Node.js/React
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
-.pnp
-.pnp.js
-
-# Build outputs
-build/
-dist/
-coverage/
 
 # IDE/Editor
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
 # Environment variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
