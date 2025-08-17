@@ -162,7 +162,6 @@ function AdminPanel() {
                   <td>{u.username}</td><td>{u.class_assigned}</td><td>{u.roll_number}</td>
                   <td style={{whiteSpace:'nowrap'}}>
                     <button onClick={() => handleApprove(u.id, true)}>Approve</button>
-                    <button onClick={() => handleApprove(u.id, false)} style={{marginLeft:'0.5em'}}>Reject</button>
                     <button onClick={() => handleDelete(u.id)} style={{marginLeft:'0.5em',background:'#dc2626'}}>Delete</button>
                   </td>
                 </tr>

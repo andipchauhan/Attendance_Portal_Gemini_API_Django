@@ -299,7 +299,7 @@ function TeacherPanel() {
             })}
           </tbody>
         </table>
-        <button type="submit" style={{marginTop:'1em'}}>Submit Attendance</button>
+        <button type="submit" style={{marginTop:'1em', opacity: attendanceMarked ? 0.7 : 1, cursor: attendanceMarked ? 'not-allowed' : 'pointer',}} disabled={attendanceMarked}>Submit Attendance</button>
       </form>
       {message && <div>{message}</div>}
       {selectedStudent && (

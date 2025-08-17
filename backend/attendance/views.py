@@ -87,7 +87,7 @@ def my_students_view(request):
 	user = get_jwt_user(request)
 	if not user or user.role != 'Teacher' or not user.is_active or not user.is_approved:
 		return JsonResponse({'error': 'Teacher access required'}, status=403)
-	students = User.objects.filter(role='Student', class_assigned=user.class_assigned, is_approved=True)
+	students = User.objects.filter(role='Student', class_assigned=user.class_assigned, is_approved=True).order_by('roll_number')
 	user_list = [
 		{
 			'id': u.id,
