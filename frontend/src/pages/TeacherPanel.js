@@ -1,8 +1,37 @@
-import React, { useEffect, useState } from 'react';
 import { renderMarkdown } from '../utils/markdown';
 import axios from '../utils/axios';
 import { useAuth } from '../utils/AuthContext';
 // Removed unused recharts imports
+import React, { useEffect, useState } from 'react';
+// Student Attendance History Modal
+function StudentHistoryModal({ student, history, onClose }) {
+  return (
+    <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(30,41,59,0.85)',zIndex:2100,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      {/* <div style={{background:'#fff',borderRadius:14,padding:'2em 2.5em',minWidth:340,maxWidth:500,boxShadow:'0 4px 32px #0003',position:'relative'}}> */}
+      <div style={{marginTop:'2em',border:'1px solid #ccc',padding:'1em',borderRadius:'8px',background:'#f9f9f9', position:'fixed', left:0, right:0, top:0, bottom:0, zIndex:1000, maxWidth:600, margin:'auto'}}>
+        <button onClick={onClose} style={{position:'absolute',top:16,right:16,background:'#ef4444',color:'#fff',border:'none',borderRadius:6,padding:'0.4em 1em',fontWeight:'bold',fontSize:'1em'}}>Close</button>
+        <h3 style={{textAlign:'center',color:'#2563eb',marginBottom:'1em'}}>Attendance History for {student.username}</h3>
+        <div style={{maxHeight:550,overflowY:'auto'}}>
+          <table style={{width:'100%',marginTop:'1em',fontSize:'1em'}}>
+            <thead><tr><th>Date</th><th>Status</th><th>Timestamp</th></tr></thead>
+            <tbody>
+              {history.length === 0 && (
+                <tr><td colSpan={3} style={{textAlign:'center',color:'#888'}}>No attendance records.</td></tr>
+              )}
+              {history.map((a,i) => (
+                <tr key={i} style={{background: a.status === 'Present' ? '#d1fae5' : '#fee2e2'}}>
+                  <td>{a.date}</td>
+                  <td style={{color: a.status === 'Present' ? '#16a34a' : '#dc2626', fontWeight: 'bold'}}>{a.status}</td>
+                  <td>{a.timestamp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Profile update modal
 function ProfileModal({ user, onClose, onUpdate }) {
@@ -303,19 +332,11 @@ function TeacherPanel() {
       </form>
       {message && <div>{message}</div>}
       {selectedStudent && (
-        <div style={{marginTop:'2em',border:'1px solid #ccc',padding:'1em',borderRadius:'8px',background:'#f9f9f9'}}>
-          <h4>Attendance History for {selectedStudent.username}</h4>
-          <button style={{float:'right'}} onClick={()=>{setSelectedStudent(null);setStudentHistory([]);}}>Close</button>
-          <table style={{marginTop:'1em'}}><thead><tr><th>Date</th><th>Status</th><th>Timestamp</th></tr></thead><tbody>
-            {studentHistory.map((a,i) => (
-              <tr key={i} style={{background: a.status === 'Present' ? '#d1fae5' : '#fee2e2'}}>
-                <td>{a.date}</td>
-                <td style={{color: a.status === 'Present' ? '#16a34a' : '#dc2626', fontWeight: 'bold'}}>{a.status}</td>
-                <td>{a.timestamp}</td>
-              </tr>
-            ))}
-          </tbody></table>
-        </div>
+        <StudentHistoryModal
+          student={selectedStudent}
+          history={studentHistory}
+          onClose={() => { setSelectedStudent(null); setStudentHistory([]); }}
+        />
       )}
     </div>
   );
