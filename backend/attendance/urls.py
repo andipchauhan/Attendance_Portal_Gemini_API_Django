@@ -4,6 +4,7 @@ from . import views
 from .views_extra import delete_user_view
 
 urlpatterns = [
+	path('attendance/report/', views.AttendanceReportView.as_view(), name='attendance_report'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),

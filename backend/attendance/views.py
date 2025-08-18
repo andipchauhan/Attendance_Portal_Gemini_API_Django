@@ -1,3 +1,99 @@
+
+import io
+import xlsxwriter
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+# Attendance report generation (PDF/XLSX)
+from .models import User, Attendance
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views import View
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AttendanceReportView(View):
+	def get(self, request):
+		from .views import get_jwt_user
+		user = get_jwt_user(request)
+		if not user or user.role != 'Teacher' or not user.is_active or not user.is_approved or not hasattr(user, 'class_assigned'):
+			return HttpResponse('Unauthorized', status=401)
+		format = request.GET.get('format', 'pdf')
+		students = User.objects.filter(class_assigned=user.class_assigned, role='Student').order_by('roll_number')
+		output_data = []
+		for student in students:
+			records = Attendance.objects.filter(student=student).order_by('date')
+			total = records.count()
+			present = records.filter(status='Present').count()
+			percent = round((present/total)*100, 2) if total else 0
+			student_info = {
+				'name': student.username,
+				'class': student.class_assigned,
+				'roll': student.roll_number,
+				'present': present,
+				'total': total,
+				'percent': percent,
+				'attendance': [
+					{'date': r.date.strftime('%Y-%m-%d'), 'status': r.status} for r in records
+				]
+			}
+			output_data.append(student_info)
+		if format == 'xlsx':
+			output = io.BytesIO()
+			workbook = xlsxwriter.Workbook(output)
+			worksheet = workbook.add_worksheet('Attendance')
+			row = 0
+			for student in output_data:
+				worksheet.write(row, 0, f"Name: {student['name']}")
+				worksheet.write(row, 1, f"Class: {student['class']}")
+				worksheet.write(row, 2, f"Roll No: {student['roll']}")
+				row += 1
+				worksheet.write(row, 0, f"Present: {student['present']} / Total: {student['total']} ({student['percent']}%)")
+				row += 1
+				worksheet.write(row, 0, "Date")
+				worksheet.write(row, 1, "Status")
+				row += 1
+				for att in student['attendance']:
+					worksheet.write(row, 0, att['date'])
+					worksheet.write(row, 1, att['status'])
+					row += 1
+				row += 2  # Space between students
+			workbook.close()
+			output.seek(0)
+			response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+			response['Content-Disposition'] = 'attachment; filename=attendance_report.xlsx'
+			return response
+		else:
+			output = io.BytesIO()
+			p = canvas.Canvas(output, pagesize=letter)
+			width, height = letter
+			y = height - 40
+			p.setFont('Helvetica-Bold', 16)
+			p.drawString(40, y, f"Attendance Report - Class {user.class_assigned}")
+			y -= 30
+			for student in output_data:
+				p.setFont('Helvetica-Bold', 13)
+				p.drawString(40, y, f"Name: {student['name']}   Class: {student['class']}   Roll No: {student['roll']}")
+				y -= 20
+				p.setFont('Helvetica', 12)
+				p.drawString(40, y, f"Present: {student['present']} / Total: {student['total']} ({student['percent']}%)")
+				y -= 18
+				p.drawString(40, y, "Date")
+				p.drawString(140, y, "Status")
+				y -= 16
+				for att in student['attendance']:
+					if y < 60:
+						p.showPage()
+						y = height - 40
+					p.drawString(40, y, att['date'])
+					p.drawString(140, y, att['status'])
+					y -= 15
+				y -= 20  # Space between students
+			p.save()
+			output.seek(0)
+			response = HttpResponse(output.read(), content_type='application/pdf')
+			response['Content-Disposition'] = 'attachment; filename=attendance_report.pdf'
+			return response
 import google.generativeai as genai
 import os
 from django.views.decorators.csrf import csrf_exempt

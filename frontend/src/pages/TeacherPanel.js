@@ -3,6 +3,21 @@ import axios from '../utils/axios';
 import { useAuth } from '../utils/AuthContext';
 // Removed unused recharts imports
 import React, { useEffect, useState } from 'react';
+  // Download attendance report
+  const handleDownloadReport = async (format) => {
+    try {
+      const res = await axios.get(`/attendance/report/?format=${format}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `attendance_report.${format === 'xlsx' ? 'xlsx' : 'pdf'}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      alert('Error downloading report');
+    }
+  };
 // Student Attendance History Modal
 function StudentHistoryModal({ student, history, onClose }) {
   return (
@@ -176,7 +191,11 @@ function TeacherPanel() {
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5em'}}>
         <h2 style={{margin:0,color:'#2563eb',fontWeight:'bold',fontSize:'2em',letterSpacing:'-1px'}}>Teacher Dashboard</h2>
-        <button onClick={()=>setShowProfile(true)} style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:6,padding:'0.5em 1.2em',fontWeight:'bold',fontSize:'1em'}}>Edit Profile</button>
+        <div style={{display:'flex',gap:'1em',alignItems:'center'}}>
+          <button onClick={()=>setShowProfile(true)} style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:6,padding:'0.5em 1.2em',fontWeight:'bold',fontSize:'1em'}}>Edit Profile</button>
+          <button onClick={()=>handleDownloadReport('pdf')} style={{background:'#16a34a',color:'#fff',border:'none',borderRadius:6,padding:'0.5em 1.2em',fontWeight:'bold',fontSize:'1em'}}>Download PDF Report</button>
+          <button onClick={()=>handleDownloadReport('xlsx')} style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:6,padding:'0.5em 1.2em',fontWeight:'bold',fontSize:'1em'}}>Download XLSX Report</button>
+        </div>
       </div>
       {showProfile && <ProfileModal user={user} onClose={()=>setShowProfile(false)} onUpdate={uname=>{if(uname)setUser(u=>({...u,username:uname}));}} />}
       {/* GenAI Chat Panel */}
