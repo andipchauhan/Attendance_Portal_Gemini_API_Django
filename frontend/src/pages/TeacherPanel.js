@@ -256,7 +256,21 @@ function TeacherPanel() {
           }
           setGenaiLoading(false);
         }} style={{display:'flex',gap:'1em',alignItems:'center',marginBottom:'1em'}}>
-          <input type="text" value={genaiInput} onChange={e=>setGenaiInput(e.target.value)} placeholder="Ask a question..." style={{flex:1,padding:'0.5em',borderRadius:'4px',border:'1px solid #ccc'}} />
+          <textarea
+            value={genaiInput}
+            onChange={e => setGenaiInput(e.target.value)}
+            placeholder="Ask a question..."
+            style={{flex:1,padding:'0.5em',borderRadius:'4px',border:'1px solid #ccc',minHeight:'3em',resize:'vertical'}}
+            rows={3}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!genaiLoading && genaiInput.trim()) {
+                  e.target.form.requestSubmit();
+                }
+              }
+            }}
+          />
           <button type="submit" disabled={genaiLoading || !genaiInput.trim()} style={{padding:'0.5em 1.2em',borderRadius:'4px',background:'#2563eb',color:'white',border:'none',fontWeight:'bold',cursor:genaiLoading?'not-allowed':'pointer'}}>Ask</button>
         </form>
         {genaiLoading && <div>Loading...</div>}

@@ -144,13 +144,46 @@ def genai_ask_view(request):
 			return JsonResponse({'error': 'Invalid JSON'}, status=400)
 		if not prompt:
 			return JsonResponse({'error': 'Prompt required'}, status=400)
+		# Fetch attendance and trend data for teacher's class
+		from .models import Attendance, User as UserModel
+		students = UserModel.objects.filter(role='Student', class_assigned=user.class_assigned, is_approved=True)
+		attendance_summary = []
+		for s in students:
+			records = Attendance.objects.filter(student=s).order_by('-date')[:30]  # last 30 records
+			total = Attendance.objects.filter(student=s).count()
+			present = Attendance.objects.filter(student=s, status='Present').count()
+			percent = round((present/total)*100, 2) if total else 0
+			attendance_summary.append({
+				'name': s.username,
+				'roll': s.roll_number,
+				'present': present,
+				'total': total,
+				'percent': percent,
+				'history': [ {'date': r.date.strftime('%Y-%m-%d'), 'status': r.status} for r in records ]
+			})
+		class_present = sum(s['present'] for s in attendance_summary)
+		class_total = sum(s['total'] for s in attendance_summary)
+		class_percent = round((class_present/class_total)*100, 2) if class_total else 0
+		# Build context for Gemini
+		import json as pyjson
+		context = (
+			f"You are a teacher dashboard assistant. You will be given attendance data in JSON format. "
+			f"Respond accordingy if anything out of context from educational purposes is asked"
+			f"Your job is to provide actionable insights, summaries, trends, and highlight students at risk (attendance < 75%). "
+			f"If asked, provide suggestions for improvement.\n"
+			f"Class: {user.class_assigned}\n"
+			f"Class attendance: {class_present}/{class_total} ({class_percent}%)\n"
+			f"Attendance data (JSON):\n{pyjson.dumps(attendance_summary, indent=2)}\n"
+			f"Now answer the following teacher dashboard question based on the above data:\n{prompt}"
+		)
+		full_prompt = context
 		try:
 			api_key = os.getenv('GENAI_API_KEY')
 			if not api_key:
 				return JsonResponse({'error': 'GENAI_API_KEY not set'}, status=500)
 			genai.configure(api_key=api_key)
 			model = genai.GenerativeModel("gemini-1.5-flash")
-			response = model.generate_content(prompt)
+			response = model.generate_content(full_prompt)
 			text = getattr(response, 'text', str(response))
 			# Save chat
 			GenAIChat.objects.create(teacher=user, prompt=prompt, response=text)
