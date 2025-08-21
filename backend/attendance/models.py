@@ -17,7 +17,10 @@ class UserManager(BaseUserManager):
 		extra_fields.setdefault('role', 'Admin')
 		extra_fields.setdefault('is_superuser', True)
 		extra_fields.setdefault('is_staff', True)
+		extra_fields.setdefault('is_active', True)
 		return self.create_user(username, password, **extra_fields)
+
+
 
 class User(AbstractBaseUser):
 	ROLE_CHOICES = [
@@ -41,6 +44,12 @@ class User(AbstractBaseUser):
 
 	def __str__(self):
 		return f"{self.username} ({self.role})"
+		
+	def has_perm(self, perm, obj=None):
+		return self.is_superuser
+
+	def has_module_perms(self, app_label):
+		return self.is_superuser
 
 class Attendance(models.Model):
 	STATUS_CHOICES = [
