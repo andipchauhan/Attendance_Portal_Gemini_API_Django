@@ -180,7 +180,7 @@ def genai_ask_view(request):
 		import json as pyjson
 		context = (
 			f"You are a teacher dashboard assistant. You will be given attendance data in JSON format. "
-			f"Refuse to answer any question outside the scope of education, attendance, or dashboard analytics.\n"
+			f"Refuse to answer any question outside the scope of educational questions, generating question papers, syllabus, or school studies.\n"
 			f"Your job is to provide actionable insights, summaries, trends, and highlight students at risk (attendance < 75%). "
 			f"If asked, provide suggestions for improvement.\n"
 			f"Class: {user.class_assigned}\n"
@@ -189,7 +189,7 @@ def genai_ask_view(request):
 			f"Class attendance summary: {class_present}/{class_total} ({class_percent}%)\n"
 			f"Full attendance data by date (JSON):\n{pyjson.dumps(attendance_by_date, indent=2)}\n"
 			f"Student summary (JSON):\n{pyjson.dumps(attendance_summary, indent=2)}\n"
-			f"Now answer the following teacher dashboard question based on the above data:\n{prompt}"
+			f"Now answer the following based on the above data and your knowledge:\n{prompt}"
 		)
 		full_prompt = context
 		try:
