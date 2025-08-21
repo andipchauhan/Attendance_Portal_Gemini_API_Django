@@ -146,20 +146,32 @@ def genai_ask_view(request):
 			return JsonResponse({'error': 'Prompt required'}, status=400)
 		# Fetch attendance and trend data for teacher's class
 		from .models import Attendance, User as UserModel
+		from django.utils import timezone
+		today = timezone.now().date()
 		students = UserModel.objects.filter(role='Student', class_assigned=user.class_assigned, is_approved=True)
+		attendance_by_date = {}
+		today_attendance = []
 		attendance_summary = []
 		for s in students:
-			records = Attendance.objects.filter(student=s).order_by('-date')[:30]  # last 30 records
-			total = Attendance.objects.filter(student=s).count()
-			present = Attendance.objects.filter(student=s, status='Present').count()
+			records = Attendance.objects.filter(student=s).order_by('date')
+			total = records.count()
+			present = records.filter(status='Present').count()
 			percent = round((present/total)*100, 2) if total else 0
+			history = [ {'date': r.date.strftime('%Y-%m-%d'), 'status': r.status} for r in records ]
+			for r in records:
+				d = r.date.strftime('%Y-%m-%d')
+				if d not in attendance_by_date:
+					attendance_by_date[d] = []
+				attendance_by_date[d].append({'student': s.username, 'roll': s.roll_number, 'status': r.status})
+				if r.date == today:
+					today_attendance.append({'student': s.username, 'roll': s.roll_number, 'status': r.status})
 			attendance_summary.append({
 				'name': s.username,
 				'roll': s.roll_number,
 				'present': present,
 				'total': total,
 				'percent': percent,
-				'history': [ {'date': r.date.strftime('%Y-%m-%d'), 'status': r.status} for r in records ]
+				'history': history
 			})
 		class_present = sum(s['present'] for s in attendance_summary)
 		class_total = sum(s['total'] for s in attendance_summary)
@@ -168,12 +180,15 @@ def genai_ask_view(request):
 		import json as pyjson
 		context = (
 			f"You are a teacher dashboard assistant. You will be given attendance data in JSON format. "
-			f"Respond accordingy if anything out of context from educational purposes is asked"
+			f"Refuse to answer any question outside the scope of education, attendance, or dashboard analytics.\n"
 			f"Your job is to provide actionable insights, summaries, trends, and highlight students at risk (attendance < 75%). "
 			f"If asked, provide suggestions for improvement.\n"
 			f"Class: {user.class_assigned}\n"
-			f"Class attendance: {class_present}/{class_total} ({class_percent}%)\n"
-			f"Attendance data (JSON):\n{pyjson.dumps(attendance_summary, indent=2)}\n"
+			f"Today's date: {today}\n"
+			f"Today's attendance: {pyjson.dumps(today_attendance, indent=2)}\n"
+			f"Class attendance summary: {class_present}/{class_total} ({class_percent}%)\n"
+			f"Full attendance data by date (JSON):\n{pyjson.dumps(attendance_by_date, indent=2)}\n"
+			f"Student summary (JSON):\n{pyjson.dumps(attendance_summary, indent=2)}\n"
 			f"Now answer the following teacher dashboard question based on the above data:\n{prompt}"
 		)
 		full_prompt = context
