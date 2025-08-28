@@ -11,7 +11,6 @@
 ```
 python -m venv venv
 venv/scripts/activate
-pip install -r requirements.txt
 
 ```
 
@@ -26,6 +25,7 @@ npm start
 ### Enter creds for admin when prompted after 'createsuperuser' command - Role: Admin
 ```
 cd backend
+pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
@@ -34,6 +34,7 @@ python manage.py runserver
 ### Terminal 2 (WITH EXISTING ENTRIES)
 ```
 cd backend
+pip install -r requirements.txt
 python manage.py runserver
 ```
 
