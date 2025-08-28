@@ -180,8 +180,8 @@ def genai_ask_view(request):
 		import json as pyjson
 		context = (
 			f"You are a teacher dashboard assistant. You will be given attendance data in JSON format. "
-			f"Refuse to answer any question outside the scope of educational questions, generating question papers, syllabus, or school studies.\n"
-			f"Your job is to provide actionable insights, summaries, trends, and highlight students at risk (attendance < 75%). "
+			f"Refuse to answer any question outside the scope of educational purposes, generating question papers, syllabus, or school studies.\n"
+			f"Your job is to provide actionable insights, summaries, trends, highlight students at risk (attendance < 75%) and help in queries related to school studies "
 			f"If asked, provide suggestions for improvement.\n"
 			f"Class: {user.class_assigned}\n"
 			f"Today's date: {today}\n"
