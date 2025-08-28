@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-from .views_extra import delete_user_view
 
 urlpatterns = [
 	path('attendance/report/', views.AttendanceReportView.as_view(), name='attendance_report'),
@@ -15,7 +14,7 @@ urlpatterns = [
     path('attendance/history/', views.attendance_history_view, name='attendance_history'),
     path('profile/update/', views.profile_update_view, name='profile_update'),
     path('me/', views.me_view, name='me'),
-    path('delete_user/', delete_user_view, name='delete_user'),
+    path('delete_user/', views.delete_user_view, name='delete_user'),
     path('attendance/trends/', views.class_attendance_trends_view, name='class_attendance_trends'),
     path('attendance/marked_today/', views.attendance_marked_today_view, name='attendance_marked_today'),
     path('genai/ask/', views.genai_ask_view, name='genai_ask'),
